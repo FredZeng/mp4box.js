@@ -1,3 +1,22 @@
+/**
+ * size - 4字节
+ * type - 4字节（'tkhd'）
+ * version - 1字节
+ * flags - 3字节
+ * creation_time - 4字节
+ * modification_time - 4字节
+ * track_id - 4字节
+ * reserved - 4字节
+ * duration - 4字节
+ * reserved - 8字节
+ * layer - 2字节
+ * alternate_group - 2字节
+ * volume - 2字节
+ * reserved - 2字节
+ * matrix - 36字节
+ * width - 4字节
+ * height - 4字节
+ */
 BoxParser.createFullBoxCtor("tkhd", function(stream) {
 	if (this.version == 1) {
 		this.creation_time = stream.readUint64();

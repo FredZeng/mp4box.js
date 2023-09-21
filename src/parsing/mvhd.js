@@ -1,3 +1,19 @@
+/**
+ * size - 4字节
+ * type - 4字节（'mvhd'）
+ * version - 1字节
+ * flags - 3字节
+ * creation_time - 4字节
+ * modification_time - 4字节
+ * timescale - 4字节
+ * duration - 4字节
+ * rate - 4字节
+ * volume - 2字节
+ * reserved - 10字节
+ * matrix - 36字节
+ * pre_defined - 24字节
+ * next_track_id - 4字节
+ */
 BoxParser.createFullBoxCtor("mvhd", function(stream) {
 	if (this.version == 1) {
 		this.creation_time = stream.readUint64();
