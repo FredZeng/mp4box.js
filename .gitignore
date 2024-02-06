@@ -11,3 +11,4 @@ test/coverage/
 test/mp4/
 test/ff-conformance/
 test/mp4-torrents/
+.idea
