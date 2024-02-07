@@ -65,5 +65,42 @@ function generateBoxTable(box, excluded_fields, additional_props, no_header) {
 	}
 	html += '</tbody>';
 	html += '</table>';
+
+	if (!no_header && box.type !== 'mdat' && file.objectIsFile && typeof box.start === 'number' && typeof box.size === 'number') {
+		html += '<div id="boxDataDetail"></div>';
+
+		const r = new FileReader();
+		let dataDetail = '';
+
+		const readBlock = function(start, size) {
+			const chunkSize = 1024;
+
+			const objectToLoad = file.objectToLoad;
+			const blob = objectToLoad.slice(start, start + Math.min(chunkSize, size));
+			r.onload = function(e) {
+				const boxDataDetail = document.getElementById('boxDataDetail');
+				if (!boxDataDetail || file.fancytree.activeNode.data.box !== box) {
+					dataDetail = '';
+					return;
+				}
+
+				let data = new Uint8Array(e.target.result);
+				for (let i = 0; i < data.length; i++) {
+					const hex = data[i].toString(16).toUpperCase();
+					dataDetail += (hex.length === 1 ? "0" + hex : hex) + ' ';
+				}
+
+				boxDataDetail.innerText = dataDetail;
+				data = null;
+
+				if (size > chunkSize) {
+					readBlock(start + chunkSize, size - chunkSize);
+				}
+			};
+			r.readAsArrayBuffer(blob);
+		}
+
+		readBlock(box.start, box.size);
+	}
 	return html;
 }
