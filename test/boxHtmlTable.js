@@ -113,7 +113,10 @@ function generateBoxTable(box, excluded_fields, additional_props, no_header) {
 				if (size > chunkSize) {
 					readBlock(start + chunkSize, size - chunkSize);
 				} else if (line.length > 0) {
-					dataDetail += line.join(' ') + '    ' + line.map(it => hex2Char(it)).join(' ') + '\n';
+					const padding = line.length < 16 ? ' ' + new Array(16 - line.length).fill('  ').join(' ') : '';
+
+					dataDetail += line.join(' ') + padding + '    ' + line.map(it => hex2Char(it)).join(' ') + '\n';
+
 					boxDataDetail.innerText = dataDetail;
 					line = [];
 				}
