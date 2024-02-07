@@ -67,13 +67,24 @@ function generateBoxTable(box, excluded_fields, additional_props, no_header) {
 	html += '</table>';
 
 	if (!no_header && box.type !== 'mdat' && file.objectIsFile && typeof box.start === 'number' && typeof box.size === 'number') {
-		html += '<div id="boxDataDetail"></div>';
+		html += '<div id="boxDataDetail" style="font-family: Lucida Console,Lucida Sans Typewriter,monaco,Bitstream Vera Sans Mono,monospace; white-space: pre;"></div>';
 
 		const r = new FileReader();
 		let dataDetail = '';
+		let line = [];
+
+		function hex2Char(hex) {
+			const charCode = parseInt(hex, 16);
+
+			if (charCode < 32 || charCode > 126) {
+				return '.';
+			}
+
+			return String.fromCharCode(charCode);
+		}
 
 		const readBlock = function(start, size) {
-			const chunkSize = 1024;
+			const chunkSize = 1024 * 2;
 
 			const objectToLoad = file.objectToLoad;
 			const blob = objectToLoad.slice(start, start + Math.min(chunkSize, size));
@@ -81,13 +92,19 @@ function generateBoxTable(box, excluded_fields, additional_props, no_header) {
 				const boxDataDetail = document.getElementById('boxDataDetail');
 				if (!boxDataDetail || file.fancytree.activeNode.data.box !== box) {
 					dataDetail = '';
+					line = [];
 					return;
 				}
 
 				let data = new Uint8Array(e.target.result);
 				for (let i = 0; i < data.length; i++) {
 					const hex = data[i].toString(16).toUpperCase();
-					dataDetail += (hex.length === 1 ? "0" + hex : hex) + ' ';
+					line.push(hex.length === 1 ? "0" + hex : hex);
+
+					if (line.length === 16) {
+						dataDetail += line.join(' ') + '    ' + line.map(it => hex2Char(it)).join(' ') + '\n';
+						line = [];
+					}
 				}
 
 				boxDataDetail.innerText = dataDetail;
@@ -95,6 +112,10 @@ function generateBoxTable(box, excluded_fields, additional_props, no_header) {
 
 				if (size > chunkSize) {
 					readBlock(start + chunkSize, size - chunkSize);
+				} else if (line.length > 0) {
+					dataDetail += line.join(' ') + '    ' + line.map(it => hex2Char(it)).join(' ') + '\n';
+					boxDataDetail.innerText = dataDetail;
+					line = [];
 				}
 			};
 			r.readAsArrayBuffer(blob);
